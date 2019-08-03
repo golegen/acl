@@ -1,5 +1,8 @@
 #include <iostream>
 #include <assert.h>
+#if defined(_WIN32) || defined(_WIN64)
+#include <io.h>
+#endif
 #include "lib_acl.h"
 #include "acl_cpp/acl_cpp_init.hpp"
 #include "acl_cpp/stdlib/log.hpp"
@@ -362,7 +365,12 @@ int main(int argc, char* argv[])
 	acl::acl_cpp_init();
 	acl::log::stdout_open(true);
 
-	if (!libssl_path.empty() && !access(libssl_path.c_str(), R_OK)) {
+	if (!libssl_path.empty()
+#if defined(_WIN32) || defined(_WIN64)
+		&& !_access(libssl_path.c_str(), 00)) {
+#else
+		&& !access(libssl_path.c_str(), R_OK)) {
+#endif
 		// …Ë÷√ libpolarssl.so ø‚»´¬∑æ∂
 		acl::polarssl_conf::set_libpath(libssl_path);
 

@@ -178,6 +178,16 @@ void http_servlet::reset(void)
 	read_length_    = 0;
 	mime_           = NULL;
 	fp_.close();
+
+	param1_.clear();
+	param2_.clear();
+	param3_.clear();
+	file1_.clear();
+	file2_.clear();
+	file3_.clear();
+	fsize1_ = -1;
+	fsize2_ = -1;
+	fsize3_ = -1;
 }
 
 bool http_servlet::doUpload(request_t& req, response_t& res)

@@ -157,7 +157,7 @@ private:
 
 	void add(wdb_sess& sess, long long max) {
 		acl::string key, value;
-		long long i;
+		long long i, n;
 
 		struct timeval begin;
 		gettimeofday(&begin, NULL);
@@ -170,6 +170,13 @@ private:
 				printf("add failed, key=%s, value=%s\r\n",
 					key.c_str(), value.c_str());
 				break;
+			}
+			n = ++__count;
+			if (i % __inter == 0) {
+				char buf[128];
+				snprintf(buf, sizeof(buf), "i=%lld, count=%lld, value=%s",
+					i, n, value.c_str());
+				acl::meter_time(__FILE__, __LINE__, buf);
 			}
 		}
 
@@ -184,13 +191,18 @@ private:
 	void get(wdb_sess& sess, long long max) {
 		acl::string key, value;
 		long long i;
-		long long n;
+		long long n, j = 0, k = max - 1;
 
 		struct timeval begin;
 		gettimeofday(&begin, NULL);
 
 		for (i = 0; i < max; i++) {
-			key.format("key-%d-%lld", id_, i);
+			if (i % 2 == 0) {
+				key.format("key-%d-%lld", id_, j++);
+			} else {
+				key.format("key-%d-%lld", id_, k--);
+			}
+
 			bool ret = sess.get(key.c_str(), value);
 			if (!ret) {
 				printf("Get failed, key=%s\r\n", key.c_str());
@@ -200,10 +212,10 @@ private:
 					key.c_str(), value.c_str());
 			}
 			n = ++__count;
-			if (n % __inter == 0) {
+			if (i % __inter == 0) {
 				char buf[128];
-				snprintf(buf, sizeof(buf), "count=%lld, value=%s",
-					n, value.c_str());
+				snprintf(buf, sizeof(buf), "i=%lld, count=%lld, value=%s",
+					i, n, value.c_str());
 				acl::meter_time(__FILE__, __LINE__, buf);
 			}
 		}
